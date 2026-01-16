@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ClipBoard 60</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .buffer-list {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 12px;
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .buffer-item {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            padding: 8px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+                              linear-gradient(135deg, #667eea, #764ba2);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .buffer-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .buffer-empty {
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 15px 0 rgba(240, 147, 251, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(240, 147, 251, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 4px 15px 0 rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(79, 172, 254, 0.4);
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .shortcut-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .shortcut-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .shortcut-name {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .shortcut-key {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .response-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 120px;
+            max-height: 150px;
+            overflow-y: auto;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .response-placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            font-style: italic;
+        }
+
+        .main-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-large {
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 14px;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .status-active {
+            background: #4ade80;
+            box-shadow: 0 0 10px #4ade80;
+        }
+
+        .status-inactive {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">AI ClipBoard 60</h1>
+            <p class="subtitle">Smart Clipboard Manager</p>
+        </div>
+
+        <!-- Clipboard Buffer Section -->
+        <div class="glass section">
+            <h3 class="section-title">Clipboard Buffer</h3>
+            <div class="buffer-list" id="bufferList">
+                <div class="buffer-empty">No items yet. Click "Add" to capture clipboard.</div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" id="addBtn">Add Item</button>
+                <button class="btn btn-secondary" id="getResponseBtn">Get Response</button>
+            </div>
+        </div>
+
+        <!-- Shortcuts Section -->
+        <div class="glass section">
+            <h3 class="section-title">Keyboard Shortcuts</h3>
+            <div class="shortcuts-grid">
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Start</div>
+                    <div class="shortcut-key">Ctrl+Shift+S</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Stop Type</div>
+                    <div class="shortcut-key">Ctrl+Shift+Z</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Typing Input</div>
+                    <div class="shortcut-key">Ctrl+Shift+Q</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Stop Typing</div>
+                    <div class="shortcut-key">Ctrl+Shift+E</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Add Item</div>
+                    <div class="shortcut-key">Ctrl+Shift+A</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Get Response</div>
+                    <div class="shortcut-key">Ctrl+Enter</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Clear</div>
+                    <div class="shortcut-key">Ctrl+Shift+X</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Paste</div>
+                    <div class="shortcut-key">Ctrl+L</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Paste by Typing</div>
+                    <div class="shortcut-key">Ctrl+Shift+L</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Pause</div>
+                    <div class="shortcut-key">Ctrl+P</div>
+                </div>
+                <div class="shortcut-card">
+                    <div class="shortcut-name">Type Fast</div>
+                    <div class="shortcut-key">Ctrl+F</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Section -->
+        <div class="glass section">
+            <h3 class="section-title">AI Response</h3>
+            <div class="response-box" id="responseBox">
+                <div class="response-placeholder">Response from Gemini will appear here...</div>
+            </div>
+        </div>
+
+        <!-- Main Action Buttons -->
+        <div class="main-actions">
+            <button class="btn btn-success btn-large" id="startBtn">
+                <span class="status-indicator status-inactive"></span>
+                Start
+            </button>
+            <button class="btn btn-secondary btn-large" id="stopBtn">Stop</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000';
+
+        // DOM Elements
+        const bufferList = document.getElementById('bufferList');
+        const addBtn = document.getElementById('addBtn');
+        const getResponseBtn = document.getElementById('getResponseBtn');
+        const responseBox = document.getElementById('responseBox');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        // State
+        let bufferItems = [];
+        let isCollecting = false;
+
+        // API Helper
+        async function apiCall(endpoint, method = 'POST') {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                return { status: 'error', message: 'Failed to connect to backend' };
+            }
+        }
+
+        // Update Buffer Display
+        function updateBufferDisplay(items = bufferItems) {
+            if (items.length === 0) {
+                bufferList.innerHTML = '<div class="buffer-empty">No items yet. Click "Add" to capture clipboard.</div>';
+            } else {
+                bufferList.innerHTML = items.map((item, index) => {
+                    const preview = item.length > 80 ? item.substring(0, 80) + '...' : item;
+                    return `<div class="buffer-item">${index + 1}. ${preview}</div>`;
+                }).join('');
+            }
+        }
+
+        // Update UI State
+        function updateUIState(collecting, hasResponse) {
+            const indicator = startBtn.querySelector('.status-indicator');
+
+            if (collecting) {
+                indicator.classList.remove('status-inactive');
+                indicator.classList.add('status-active');
+                startBtn.innerHTML = '<span class="status-indicator status-active"></span>Active';
+            } else {
+                indicator.classList.remove('status-active');
+                indicator.classList.add('status-inactive');
+                startBtn.innerHTML = '<span class="status-indicator status-inactive"></span>Start';
+            }
+
+            // Update Add button text based on collecting state
+            addBtn.textContent = collecting ? 'Auto-Adding' : 'Add Item';
+
+            // Update Get Response button if response exists
+            if (hasResponse) {
+                getResponseBtn.style.background = 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                getResponseBtn.textContent = 'Response Ready';
+            } else {
+                getResponseBtn.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                getResponseBtn.textContent = 'Get Response';
+            }
+        }
+
+        // Fetch and Update Status
+        async function refreshStatus() {
+            const result = await apiCall('/get_status', 'GET');
+            if (result.status === 'success') {
+                bufferItems = result.buffer || [];
+                isCollecting = result.collecting || false;
+                updateBufferDisplay(bufferItems);
+                updateUIState(isCollecting, result.has_response);
+
+                if (result.response) {
+                    responseBox.innerHTML = result.response;
+                }
+            }
+        }
+
+        // Button Handlers
+        addBtn.addEventListener('click', async () => {
+            const result = await apiCall('/add_buffer');
+            if (result.status === 'success') {
+                bufferItems = result.buffer || [];
+                updateBufferDisplay(bufferItems);
+            } else {
+                alert(result.message || 'Failed to add to buffer');
+            }
+        });
+
+        getResponseBtn.addEventListener('click', async () => {
+            if (bufferItems.length === 0) {
+                responseBox.innerHTML = '<div style="color: #f5576c;">❌ No items in buffer. Add some items first!</div>';
+                return;
+            }
+
+            responseBox.innerHTML = '<div style="color: rgba(255,255,255,0.6)">🤖 Getting response from Gemini...</div>';
+            getResponseBtn.textContent = 'Processing...';
+
+            const result = await apiCall('/get_response');
+            if (result.status === 'success') {
+                responseBox.innerHTML = result.response;
+                getResponseBtn.style.background = 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                getResponseBtn.textContent = 'Response Ready';
+            } else {
+                responseBox.innerHTML = `<div style="color: #f5576c;">❌ ${result.message || 'Failed to get response'}</div>`;
+                getResponseBtn.textContent = 'Get Response';
+            }
+        });
+
+        startBtn.addEventListener('click', async () => {
+            if (isCollecting) {
+                const result = await apiCall('/stop_collecting');
+                if (result.status === 'success') {
+                    isCollecting = false;
+                    updateUIState(false, false);
+                }
+            } else {
+                const result = await apiCall('/start_collecting');
+                if (result.status === 'success') {
+                    isCollecting = true;
+                    updateUIState(true, false);
+                }
+            }
+        });
+
+        stopBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to stop the application?')) {
+                await apiCall('/stop_app');
+                responseBox.innerHTML = '<div style="color: rgba(255,255,255,0.6);">👋 Application stopped. You can close this window.</div>';
+            }
+        });
+
+        // Auto-refresh status every 2 seconds
+        setInterval(refreshStatus, 2000);
+
+        // Initialize
+        updateBufferDisplay();
+        refreshStatus();
+    </script>
+</body>
+</html>
